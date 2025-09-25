@@ -35,3 +35,69 @@ This table provides a template for bulk loading campaign data into the PreventaB
 - **Validation**: The system checks for valid article IDs, minimum quantities, and existing campaigns. Duplicate campaign names for new campaigns (when `AsociarACampañaExistente` is `false`) will cause an error.
 - **Excel Formatting**: Save the file as `.xlsx`. Ensure dates are in `YYYY-MM-DD` format and numeric fields (e.g., `CamProCantidadMin`, `CamProPrecioPromocional`) are formatted as numbers.
 - **Usage**: Upload the Excel file to the API endpoint `[HttpPost("masiva-excel")]` as a list of `CampaignMasivaDto` objects.
+
+
+
+
+
+
+
+# Bulk Load Articles to Existing Campaigns Template for Excel
+
+This table provides a template for bulk loading articles into existing campaigns in the PreventaBBO system. Each row associates an article with an existing campaign, identified by `CampId` or `CampNombre`. Required fields are marked with an asterisk (*).
+
+| CampId | CampNombre | AsociarACampañaExistente* | Artid* | CamProCantidadMin* | CamProCantidadMax | CamProPrecioPromocional |
+|--------|------------|---------------------------|--------|--------------------|-------------------|-------------------------|
+| 1      |            | true                      | ART001 | 5                  | 10                | 9.99                    |
+| 0      | Summer Promo 2025 | true             | ART002 | 3                  | 5                 | 14.99                   |
+| 2      |            | true                      | ART003 | 2                  | 4                 | 19.99                   |
+| 0      | Winter Sale | true                   | ART004 | 10                 | 20                | 7.50                    |
+
+## Column Descriptions
+
+- **CampId**: The ID of the existing campaign. Use `0` if identifying the campaign by `CampNombre`. If provided, it takes precedence over `CampNombre`.
+- **CampNombre**: The name of the existing campaign. Required if `CampId` is `0`. Used to look up the campaign when `AsociarACampañaExistente` is `true`.
+- **AsociarACampañaExistente***: Must be `true` to associate articles with an existing campaign. Set to `true` for all rows in this template.
+- **Artid***: The article ID to associate with the campaign. Required for each row.
+- **CamProCantidadMin***: Minimum quantity for the promotional article. Must be greater than 0.
+- **CamProCantidadMax**: Maximum quantity for the promotional article. Optional.
+- **CamProPrecioPromocional**: Promotional price for the article. Optional (defaults to regular price if not provided).
+
+## Notes
+- **Required Fields**: `Artid`, `CamProCantidadMin`, and `AsociarACampañaExistente` are mandatory. Either `CampId` (non-zero) or `CampNombre` must be provided to identify the campaign.
+- **Validation**: The system checks if the campaign exists using `CampId` or `CampNombre`. If not found, an error is thrown (e.g., `KeyNotFoundException`). `CamProCantidadMin` must be greater than 0.
+- **Existing Campaigns**: The system adds the specified article (`Artid`, `CamProCantidadMin`, `CamProCantidadMax`, `CamProPrecioPromocional`) to the `TbCampañaArticulos` collection of the existing campaign and updates the `CampFechaTxn` to the current timestamp.
+- **Excel Formatting**: Save as `.xlsx`. Ensure `Artid` is a valid article ID, `CamProCantidadMin` and `CamProCantidadMax` are positive integers, and `CamProPrecioPromocional` is a valid decimal (if provided).
+- **Usage**: Upload to the `[HttpPost("masiva-excel")]` endpoint as a list of `CampaignMasivaDto` objects. The system processes each row to add articles to the specified campaigns.
+
+
+
+
+
+
+
+
+# Bulk Load Clients to Existing Campaigns Template for Excel
+
+This table provides a template for bulk loading clients into existing campaigns in the PreventaBBO system. Each row associates a client with an existing campaign, identified by `CampId` or `CampNombre`. Required fields are marked with an asterisk (*).
+
+| CampId | CampNombre | AsociarACampañaExistente* | CliId* |
+|--------|------------|---------------------------|--------|
+| 1      |            | true                      | CLI001 |
+| 0      | Summer Promo 2025 | true             | CLI002 |
+| 2      |            | true                      | CLI003 |
+| 0      | Winter Sale | true                   | CLI004 |
+
+## Column Descriptions
+
+- **CampId**: The ID of the existing campaign. Use `0` if identifying the campaign by `CampNombre`. If provided, it takes precedence over `CampNombre`.
+- **CampNombre**: The name of the existing campaign. Required if `CampId` is `0`. Used to look up the campaign when `AsociarACampañaExistente` is `true`.
+- **AsociarACampañaExistente***: Must be `true` to associate clients with an existing campaign. Set to `true` for all rows in this template.
+- **CliId***: The client ID to associate with the campaign. Required for each row.
+
+## Notes
+- **Required Fields**: `CliId` and `AsociarACampañaExistente` are mandatory. Either `CampId` (non-zero) or `CampNombre` must be provided to identify the campaign.
+- **Validation**: The system checks if the campaign exists using `CampId` or `CampNombre`. If not found, an error is thrown (e.g., `KeyNotFoundException`).
+- **Existing Campaigns**: The system adds the specified `CliId` to the `TbCampañaClientes` collection of the existing campaign and updates the `CampFechaTxn` to the current timestamp.
+- **Excel Formatting**: Save as `.xlsx`. Ensure `CliId` is a valid client ID from the system, and `AsociarACampañaExistente` is set to `true` (text or boolean format).
+- **Usage**: Upload to the `[HttpPost("masiva-excel")]` endpoint as a list of `CampaignMasivaDto` objects. The system processes each row to add clients to the specified campaigns.
